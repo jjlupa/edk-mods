@@ -1,5 +1,14 @@
 <?php
 
+$modInfo['known_members']['name'] = "scout";
+$modInfo['known_members']['abstract'] = "Allow individuals to opt-in to killmails, for purposes of scouting or logistics.";
+$modInfo['known_members']['about'] = "https://github.com/jjlupa/edk-mods/tree/master/scout";
+
+// The docs say you can use this to replace the core class.  But as soon as I do that, it gives me errors.  Easier for now
+// to copy the changes into commong/include, and everything just works.
+//
+// edkloader::register('Kill', dirname(FILE).'/class.kill.php' );
+
 event::register("killDetail_assembling", "ScoutMod::renderScoutsList");
 
 class ScoutMod
