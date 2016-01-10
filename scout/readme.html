@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+<head>
+<title>EDK v3 Scout Mod Installation</title>
+<style type="text/css" media="screen">
+<!--
+	.contents {
+		border: 1px dotted #a0a0a0;
+		background-color: #f0f0f0;
+		color: #000000;
+		font-weight: normal;
+		padding-left: 10px;
+	}
+	.diffleft {
+		border: 1px dotted #a0a0a0;
+		font-family: 'Courier New', Courier, monospace;
+		background-color: #f0f0f0;
+		color: #000000;
+		font-weight: normal;
+	}
+	.diffright {
+		border: 1px dotted #a0a0a0;
+		font-family: 'Courier New', Courier, monospace;
+		background-color: #ffd8d8;
+		color: #000000;
+		font-weight: normal;
+	}
+	.smallText {
+		font-size: small;
+	}
+-->
+</style>
+</head>
+<body>
+<h2>Scout Mod for EDK v3</h2>
+<p class="smallText">version 0.9.2.17 - IDUN - 10JAN2011 1410
+</p>
+<h3>Table of Contents</h3>
+<div class="contents">
+<a href="#intro">Introduction</a><br />
+<a href="#contrib">Contributors</a><br />
+<a href="#support">Support</a><br />
+<a href="#install">Installation</a><br />
+<a href="#operation">Operation</a><br />
+<a href="#upgradeV2">Upgrading from EDK v2</a><br />
+<a href="#upgradeV0917">Upgrading from Scout mod v0.9.1.7</a><br />
+<a href="#upgradeV0916">Upgrading from Scout mod v0.9.1.6</a><br />
+<a href="#migration">Data migration script</a><br />
+<a href="#uninstall">Uninstallation</a><br />
+<a href="#bugs">Known Issues</a><br />
+<a href="#todo">Upcoming Changes</a><br />
+</div>
+<a name="intro"></a><h3>Introduction</h3>
+<p>This mod is intended to provide forward scouts and logistics pilots credit for kills via a manual add operation performed from the kill details page. Although the Pilot details are affected (additional points are awarded, kill count and damage done increase), the related kills and original killmail pop-up do not list the scout pilots.
+</p>
+<p>This mod is targeted for EDK v3.1.5 (rev 1069). It will also work for older revisions of the EDK v3 subversion code at <a href="http://evedev-kb.googlecode.com/svn">http://evedev-kb.googlecode.com/svn</a>. If you are running EDK v2, you want the older <a href="http://eve-id.net/forum/viewtopic.php?f=505&t=15139">mod</a>.</p>
+<a name="contrib"></a><h3>Contributors</h3>
+<p>Character <strong>I DontLikeWhatYoureDoing</strong> of The Executioners corporation has brought this mod to you, which is a heavily modified version of character <strong>J nx</strong>'s Scout 'hack' for EDK v2. <strong>I DontLikeWhatYoureDoing</strong> knows that you will never be able to search for his name in game, so don't bother trying to throw ISKies his way. Instead, take the lesson that his title bears to heart: Do not pick the worst name in eve if you ever want to do business with other players in game.</p>
+<a name="support"></a><h3>Support</h3>
+<p>See the EDK3 Scout mod <a href="http://eve-id.net/forum/viewtopic.php?f=505&t=17082">thread</a> at the Eve Development Network's forums.
+</p>
+<a name="install"></a><h3>Installation</h3>
+<p><span style="color: #800000;">This is the part where everyone tells you to backup your installation and your database. If you wish to, do it, but if I need to sit here and tell you to do that, then you may not want to continue with the rest of this really simple installation.</span></p>
+<dl>
+<dt>1. Execute SQL on your server. You can use the <b>install.sql</b> script if you prefer.</dt>
+<dd>
+<div class="diffleft"><pre>
+CREATE TABLE IF NOT EXISTS `kb3_scout` (
+`scout_id` int(6) NOT NULL auto_increment,
+`inp_kll_id` int(6) NOT NULL default '0',
+`inp_plt_id` int(6) NOT NULL default '0',
+PRIMARY KEY  (`scout_id`),
+KEY `inp_plt_id` (`inp_plt_id`)
+)
+</pre></div>
+<br />
+</dd>
+<dt>2. Upload new files</dt>
+<dd>Upload the scout folder (located in this distribution at mods/scout) into your killboard's mods folder.
+<br />
+</dd>
+<h4>Automatic modification using patch file</h4>
+<p>Users familiar with diff/patch tools can use this method in lieu of the manual modification option below. I will not be maintaining the manual install instructions for older edk code, so you must use the patch method if you need to install the scout mod on an older board.
+</p>
+<p>For compatibility with older boards, I'm including patch files for older versions of the edk code. If you don't know how to apply a patch and are running edk v3.1.5, you can proceed to the manual installation section below. Otherwise, you'll have to learn how to use patch tools or open up the patch file in a text editor and try to make the contained changes manually to the referenced files. Read up on how to read a diff/patch file.
+</p>
+<dt>3. Consult the following table to determine which patch file you need and apply it to the <i>installed</i> edk code.</dt>
+<dd>
+<p>NOTE: Some of the patch files also change files in the mods/scout folder.
+</p>
+<ul>
+	<li>EDK 3.1.5 - <a href="r1069.patch">r1069.patch</a> - Or follow manual modification instructions below.</li>
+	<li>EDK 3.0.9 - <a href="r857.patch">r857.patch</a></li>
+	<li>EDK 3.0.1 - <a href="r529.patch">r529.patch</a></li>
+</ul>
+</dd>
+<h4>Manual Modification</h4>
+<p>Perform steps 3 and 4 below <i>only</i> if you have not performed the automatic modification step above.
+</p>
+<dt>3. Open <strong>common/kill_related.php</strong></dt>
+<dd>Find:
+<div class="diffleft"><pre>
+				where ind_kll_id = ".$kill->getID()."
+</pre></div>
+Replace with:
+<div class="diffright"><pre>
+				where ind_kll_id = ".$kill->getID()." and ind_shp_id != '9999'
+</pre></div>
+Result:
+<div class="diffleft"><pre>
+	private function handle_involved($kill, $side)
+	{
+		// we need to get all involved pilots, killlists dont supply them
+		$qry = DBFactory::getDBQuery();
+		$sql = "select ind_plt_id, ind_crp_id, ind_all_id, ind_sec_status, ind_shp_id, ind_wep_id,
+				typeName, plt_name, crp_name, all_name, shp_name, scl_points, scl_id, shp_externalid
+				from kb3_inv_detail
+				left join kb3_invtypes on ind_wep_id=typeID
+				left join kb3_pilots on ind_plt_id=plt_id
+				left join kb3_corps on ind_crp_id=crp_id
+				left join kb3_alliances on ind_all_id=all_id
+				left join kb3_ships on ind_shp_id=shp_id
+				left join kb3_ship_classes on shp_class=scl_id
+<div class="diffright">				where ind_kll_id = ".$kill->getID()." and ind_shp_id != '9999'
+</div>				order by ind_order";
+</pre></div>
+<br />
+</dd>
+<dt>4. Open <strong>common/includes/class.kill.php</strong></dt>
+<dd>Find:
+<div class="diffleft"><pre>
+		foreach ($this->involvedparties_ as $inv)
+		{
+			$pilot = new Pilot($inv->getPilotID());
+			$corp = new Corporation($inv->getCorpID());
+			$alliance = new Alliance($inv->getAllianceID());
+
+			$weapon = $inv->getWeapon();
+			$ship = $inv->getShip();
+</pre></div>
+After add:
+<div class="diffright"><pre>
+			if ($ship->getID() != "9999")
+			{
+</pre></div>
+Result:
+<div class="diffleft"><pre>
+		foreach ($this->involvedparties_ as $inv)
+		{
+			$pilot = new Pilot($inv->getPilotID());
+			$corp = new Corporation($inv->getCorpID());
+			$alliance = new Alliance($inv->getAllianceID());
+
+			$weapon = $inv->getWeapon();
+			$ship = $inv->getShip();
+
+<div class="diffright">			if ($ship->getID() != "9999")
+			{</div>
+			if ($pilot->getName() == $weapon->getName())
+			{
+				$name = $pilot->getName()." / ".$corp->getName();
+			}
+</pre></div>
+<br />
+Find:
+<div class="diffleft"><pre>
+		if (count($this->destroyeditems_) > 0)
+		{
+</pre></div>
+Before add:
+<div class="diffright"><pre>
+		}
+</pre></div>
+Result:
+<div class="diffleft"><pre>
+<div class="diffright">		}</div>
+		if (count($this->destroyeditems_) > 0)
+		{
+</pre></div>
+<br />
+</dd>
+</dl>
+<a name="operation"></a><h3>Operation</h3>
+<p>Make sure to enable the mod:
+</p>
+<dl>
+<dt>1. Enable mod</dt>
+<dd>Log into your killboard's admin panel and go to Modules under the Features menu. Check scout as Active and press Save. On the Posting Options page in the Advanced menu, enable scouts and press Save.
+<br/><br/>
+</dd>
+<dt>2. (<strong>Optional</strong>) Require posting password</dt>
+<dd>Go to Posting Options under the Advanced menu on your killboard's admin panel. Check Require password for scout and enter a password for Scout post password. Press Save.
+<br/>
+</dd>
+</dl>
+<p>On the kill details page, there is a new box under the list of involved parties. Type in an <i>exact</i> character name and press the Add Scout button.</p>
+<p>To remove a scout, log in as the administrator and visit the kill details page containing the scout you wish to remove. Choose the pilot to remove from the drop down list and press the Remove Scout button. Confirm by pressing the remove button again.</p>
+<p><span style="color: #800000;"><strong>NOTE: Pilots cannot be added as a scout if the killboard does not know about them (that is, they are not involved in a kill).</strong></span></p>
+<a name="upgradeV2"></a><h3>Upgrading from EDK v2</h3>
+<dl>
+	<dt><u>Code upgrade</u></dt>
+	<dd>So much has changed in the code that you will not be able to use any of the original scout mod files. <strong>Follow the installation instructions on an EDK v3 site as above</strong>.</dd>
+	<dt><u>Database upgrade</u></dt>
+	<dd>Use the data <a href="#migration">migration script</a>.</dd>
+</dl>
+<a name="upgradeV0917"></a><h3>Upgrading from Scout mod v0.9.1.7</h3>
+<dl>
+	<dt><u>Code upgrade</u></dt>
+	<dd>Replace <b>class.scout.php</b> and <b>scout.tpl</b> in the mods/scout folder.</dd>
+</dl>
+<a name="upgradeV0916"></a><h3>Upgrading from Scout mod v0.9.1.6</h3>
+<dl>
+	<dt><u>Code upgrade</u></dt>
+	<dd>Replace <b>class.scout.php</b> and <b>scout.tpl</b> in the mods/scout folder.</dd>
+	<dt><u>Database upgrade</u></dt>
+	<dd>Use the data <a href="#migration">migration script</a></dd>
+</dl>
+<a name="migration"></a><h3>Data migration script</h3>
+<p>The database migration script will migrate scout data between two EDK v3 boards, as well as from an EDK v2 to an EDK v3 board.
+</p>
+<ol>
+<li>Upload <b>scoutmigrate.php</b> to the root of your destination killboard and visit the page in a web browser.</li>
+<li>Follow the instructions on the page.</li>
+<li>After succesful migration, delete the script from the server.</li>
+</ol>
+<a name="uninstall"></a><h3>Uninstallation</h3>
+<p><span style="color: #800000;">NOTE: You may wish to backup your kb3_inv_detail and kb3_scout tables in case you will ever restore the scout data in the future. <strong>WARNING: You must run the SQL as detailed below when uninstalling the mod. Failure to do so will result in your related kills, RSS feeds, and other kill data pages looking all FUBAR).</strong></span></p>
+<dl>
+<dt>1. Delete scout data</dt>
+<dd>Using your SQL client, execute the following SQL against your EDK database. You can use the <b>uninstall.sql</b> script if you prefer.
+<div class="diffleft"><pre>
+drop table `kb3_scout`;
+delete from `kb3_inv_detail` where `ind_shp_id` = 9999;
+</pre></div>
+<br />
+<dt>2. Back out code changes</dt>
+<dd>Reverse the Installation instructions above.
+<br /><br />
+</dd>
+<a name="bugs"></a><h3>Known Issues</h3>
+<ul>
+<li>Scout kills do not show up in the proper order on the pilot details page.</li>
+</ul>
+<a name="todo"></a><h3>Upcoming Changes</h3>
+<p>In no particular order:
+</p>
+<ul>
+<li>Segregating scout data from kb3_inv_detail table.</li>
+<li>Displaying separate scout data on pages like pilot details</li>
+<li>Show an error when trying to add a scout that's already on the killmail</li>
+<li>Make displaying the password box optional on the kill details page if there is no password configured</li>
+<li>Add a scout box to the Post Mail page so kills can be added that are outside of the killboard's owning entity.</li>
+<li>Handle the addition of a new pilot to the killboard when preforming a scout add operation to an existing killmail if the pilot isn't currently known by the board.</li>
+</body>
+</html>
